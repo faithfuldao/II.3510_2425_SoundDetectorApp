@@ -25,7 +25,6 @@ import java.io.IOException;
 
 
 import static android.Manifest.permission.RECORD_AUDIO;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
         statusTV = findViewById(R.id.idTVstatus);
         startTV = findViewById(R.id.btnRecord);
         stopTV = findViewById(R.id.btnStop);
-        stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        playTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        stopplayTV.setBackgroundColor(getResources().getColor(R.color.gray));
+       // stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
+        //playTV.setBackgroundColor(getResources().getColor(R.color.gray));
+        //stopplayTV.setBackgroundColor(getResources().getColor(R.color.gray));
 
         startTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
                     boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     if (permissionToRecord && permissionToStore) {
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
-                    } else {
+                    }
+                    else {
                         Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -92,23 +92,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean checkPermissions() {
-        int result = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
-        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+        return result1 == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void RequestPermissions() {
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
+    private void requestPermissions() {
+        String[] permissions = {RECORD_AUDIO};
+        ActivityCompat.requestPermissions(MainActivity.this, permissions, REQUEST_AUDIO_PERMISSION_CODE);
     }
 
     private void startRecording() {
         if(checkPermissions()){
-            stopTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-            startTV.setBackgroundColor(getResources().getColor(R.color.gray));
+           // stopTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+            //startTV.setBackgroundColor(getResources().getColor(R.color.gray));
 
-            mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-            mFileName += "/AudioRecording.3gp";
             mRecorder = new MediaRecorder();
 
 
@@ -116,25 +113,26 @@ public class MainActivity extends AppCompatActivity {
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
-            mRecorder.setOutputFile(mFileName);
             try {
                 mRecorder.prepare();
+                mRecorder.start();
+                statusTV.setText("Recording Started");
+                Log.e("TAG", "Recording started");
             } catch (IOException e) {
-                Log.e("TAG", "prepare() failed");
+                Log.e("TAG", "prepare() failed", e);
             }
-
-            mRecorder.start();
             statusTV.setText("Recording Started");
+
         } else {
-            RequestPermissions();
+            requestPermissions();
         }
         }
 
     public void pauseRecording() {
-        stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        startTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        playTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        stopplayTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+       // stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
+        //startTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        //playTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
+        //stopplayTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
 
         mRecorder.stop();
 
@@ -156,12 +154,17 @@ public class MainActivity extends AppCompatActivity {
     private Runnable soundLevelChecker = new Runnable() {
         @Override
         public void run() {
-            int amplitude = mRecorder.getMaxAmplitude(); //get sound level
-            double soundDecibelMeasured = calculateDecibels(amplitude); //convert it to decibel
-            if (soundDecibelMeasured > THRESHOLD_DB) {
-                sendNotification();  //send notification if sound crosses 70 db
+            if (mRecorder != null) {
+                int amplitude = mRecorder.getMaxAmplitude();
+                double soundDecibelMeasured = calculateDecibels(amplitude); //convert it to decibel
+                if (soundDecibelMeasured > THRESHOLD_DB) {
+                    sendNotification();  //send notification if sound crosses 70 db
+                }
+                handler.postDelayed(this, 1000);  // Re-check every second
+            } else {
+                Log.e("MainActivity", "MediaRecorder is not initialized.");
             }
-            handler.postDelayed(this, 1000);  // Re-check every second
+
         }
     };
 
