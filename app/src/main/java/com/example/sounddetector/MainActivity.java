@@ -105,13 +105,14 @@ public class MainActivity extends AppCompatActivity {
         if(checkPermissions()){
            // stopTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
             //startTV.setBackgroundColor(getResources().getColor(R.color.gray));
-
+            mFileName = getExternalFilesDir(null).getAbsolutePath() + "/tempRecording.3gp";
             mRecorder = new MediaRecorder();
 
 
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            mRecorder.setOutputFile(mFileName);
 
             try {
                 mRecorder.prepare();
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("TAG", "prepare() failed", e);
             }
             statusTV.setText("Recording Started");
+
 
         } else {
             requestPermissions();
@@ -157,6 +159,8 @@ public class MainActivity extends AppCompatActivity {
             if (mRecorder != null) {
                 int amplitude = mRecorder.getMaxAmplitude();
                 double soundDecibelMeasured = calculateDecibels(amplitude); //convert it to decibel
+                Log.e("SoundLevel", "Current Sound Level: " + soundDecibelMeasured + " dB");
+
                 if (soundDecibelMeasured > THRESHOLD_DB) {
                     sendNotification();  //send notification if sound crosses 70 db
                 }
