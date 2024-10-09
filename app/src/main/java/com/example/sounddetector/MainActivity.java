@@ -50,8 +50,6 @@ public class MainActivity extends AppCompatActivity {
         statusTV = findViewById(R.id.idTVstatus);
         startTV = findViewById(R.id.btnRecord);
         stopTV = findViewById(R.id.btnStop);
-        playTV = findViewById(R.id.btnPlay);
-        stopplayTV = findViewById(R.id.btnStopPlay);
         stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
         playTV.setBackgroundColor(getResources().getColor(R.color.gray));
         stopplayTV.setBackgroundColor(getResources().getColor(R.color.gray));
