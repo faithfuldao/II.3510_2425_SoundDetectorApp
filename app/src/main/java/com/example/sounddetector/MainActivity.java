@@ -2,8 +2,6 @@ package com.example.sounddetector;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 

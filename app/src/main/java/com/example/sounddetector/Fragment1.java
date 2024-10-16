@@ -10,13 +10,6 @@ import android.view.ViewGroup;
 
 public class Fragment1 extends Fragment {
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Fragment1#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class Fragment1 extends Fragment {
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
