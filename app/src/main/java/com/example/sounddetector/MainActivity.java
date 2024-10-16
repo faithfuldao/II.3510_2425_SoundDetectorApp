@@ -29,7 +29,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView startTV, stopTV, playTV, stopplayTV, statusTV;
+    private TextView startTV, stopTV, statusTV;
 
     private MediaRecorder mRecorder;
 
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     //defining threshold for the alert notifications
     private static final int THRESHOLD_DB = 70;
     private Handler handler = new Handler();
+    private boolean isRecording = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,27 +49,25 @@ public class MainActivity extends AppCompatActivity {
 
         statusTV = findViewById(R.id.idTVstatus);
         startTV = findViewById(R.id.btnRecord);
-        stopTV = findViewById(R.id.btnStop);
-       // stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        //playTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        //stopplayTV.setBackgroundColor(getResources().getColor(R.color.gray));
+
 
         startTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startRecording();
+                if (!isRecording) {
+                    startTV.setText(getResources().getString(R.string.stop_recording));
+                    startRecording();
+                    isRecording = true;
+                    handler.postDelayed(soundLevelChecker, 1000);
+                } else {
+                    startTV.setText(getResources().getString(R.string.start_recording));
+                    pauseRecording();
+                    isRecording = false;
+                }
             }
         });
-        stopTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pauseRecording();
-
-            }
-        });
-
         //check frequently the sound measured by the app
-        handler.postDelayed(soundLevelChecker, 1000);
+
     }
 
     @Override
@@ -79,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
             case REQUEST_AUDIO_PERMISSION_CODE:
                 if (grantResults.length > 0) {
                     boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean permissionToStore = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (permissionToRecord && permissionToStore) {
+
+                    if (permissionToRecord) {
                         Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
                     }
                     else {
@@ -131,13 +130,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     public void pauseRecording() {
-       // stopTV.setBackgroundColor(getResources().getColor(R.color.gray));
-        //startTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        //playTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-        //stopplayTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-
         mRecorder.stop();
-
         mRecorder.release();
         mRecorder = null;
         statusTV.setText("Recording Stopped");

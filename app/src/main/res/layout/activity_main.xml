@@ -57,17 +57,5 @@
 
         <!--Textview to stop audio recording
             drawableTop will add above mic image-->
-        <TextView
-            android:id="@+id/btnStop"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:background="@color/purple_500"
-            android:padding="5dp"
-            android:text="@string/stop_recording"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-             />
     </LinearLayout>
 </RelativeLayout>
