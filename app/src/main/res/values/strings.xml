@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">SoundDetector</string>
+
+    <string name="home">Home</string>
+    <string name="graph">Graph</string>
+    <string name="history">History</string>
+
+    <string name="dbValue">0 dB</string>
+    <string name="start">Start recording</string>
+    <string name="stop">Stop recording</string>
+
+    <string name="tab2">Graph</string>
+    <string name="tab3">History</string>
 </resources>
