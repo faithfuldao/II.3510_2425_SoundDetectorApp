@@ -29,7 +29,7 @@ import static android.Manifest.permission.RECORD_AUDIO;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView startTV, stopTV, statusTV;
+    private TextView startTV, statusTV;
 
     private MediaRecorder mRecorder;
 
@@ -50,46 +50,44 @@ public class MainActivity extends AppCompatActivity {
         statusTV = findViewById(R.id.idTVstatus);
         startTV = findViewById(R.id.btnRecord);
 
-
         startTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!isRecording) {
-                    startTV.setText(getResources().getString(R.string.stop_recording));
+                    if (!checkPermissions()) {
+                        requestPermissions();
+                        return;
+                    }
                     startRecording();
+                    startTV.setText(getResources().getString(R.string.stop_recording));
                     isRecording = true;
                     handler.postDelayed(soundLevelChecker, 1000);
                 } else {
-                    startTV.setText(getResources().getString(R.string.start_recording));
                     pauseRecording();
+                    startTV.setText(getResources().getString(R.string.start_recording));
                     isRecording = false;
                 }
             }
         });
-        //check frequently the sound measured by the app
-
     }
 
+    // This method is called when the user responds to the permission request.
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        switch (requestCode) {
-            case REQUEST_AUDIO_PERMISSION_CODE:
-                if (grantResults.length > 0) {
-                    boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-
-                    if (permissionToRecord) {
-                        Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_LONG).show();
-                    }
-                }
-                break;
+        if (grantResults.length > 0 && requestCode == REQUEST_AUDIO_PERMISSION_CODE) {
+            boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (permissionToRecord) {
+                Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "Permission Denied", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
+    // Method to check permissions
     public boolean checkPermissions() {
         int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
         return result1 == PackageManager.PERMISSION_GRANTED;
@@ -101,33 +99,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startRecording() {
-        if(checkPermissions()){
-           // stopTV.setBackgroundColor(getResources().getColor(R.color.purple_200));
-            //startTV.setBackgroundColor(getResources().getColor(R.color.gray));
-            mFileName = getExternalFilesDir(null).getAbsolutePath() + "/tempRecording.3gp";
-            mRecorder = new MediaRecorder();
+        mFileName = getExternalFilesDir(null).getAbsolutePath() + "/tempRecording.3gp";
+        mRecorder = new MediaRecorder();
 
 
-            mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            mRecorder.setOutputFile(mFileName);
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mRecorder.setOutputFile(mFileName);
 
-            try {
-                mRecorder.prepare();
-                mRecorder.start();
-                statusTV.setText("Recording Started");
-                Log.e("TAG", "Recording started");
-            } catch (IOException e) {
-                Log.e("TAG", "prepare() failed", e);
-            }
+        try {
+            mRecorder.prepare();
+            mRecorder.start();
             statusTV.setText("Recording Started");
-
-
-        } else {
-            requestPermissions();
+            Log.e("TAG", "Recording started");
+        } catch (IOException e) {
+            Log.e("TAG", "prepare() failed", e);
         }
-        }
+        statusTV.setText("Recording Started");
+    }
 
     public void pauseRecording() {
         mRecorder.stop();
