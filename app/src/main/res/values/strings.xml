@@ -5,9 +5,13 @@
     <string name="graph">Graph</string>
     <string name="history">History</string>
 
+    <string name="status">Status</string>
+    <string name="recordingStarted">Recording started</string>
+    <string name="recordingStopped">Recording stopped</string>
+
     <string name="dbValue">0 dB</string>
-    <string name="start">Start recording</string>
-    <string name="stop">Stop recording</string>
+    <string name="startRecording">Start recording</string>
+    <string name="stopRecording">Stop recording</string>
 
     <string name="tab2">Graph</string>
     <string name="tab3">History</string>
