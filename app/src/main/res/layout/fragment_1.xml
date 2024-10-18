@@ -18,11 +18,12 @@
         android:layout_marginBottom="20dp" />
 
     <TextView
+        android:id="@+id/dbValue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textSize="50dp"
-        android:text="@string/dbValue" />
+        android:text="0 dB" />
 
     <Button
         android:id="@+id/startStopBtn"
@@ -30,7 +31,5 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/startRecording" />
-
-
 
 </LinearLayout>

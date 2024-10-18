@@ -2,10 +2,12 @@ package com.example.sounddetector;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Handler;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -20,22 +22,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.util.Log;
-import java.io.IOException;
 
 public class Fragment1 extends Fragment {
 
     private Button startStopBtn;
-    private TextView statusTV;
-    private MediaRecorder mediaRecorder;
-    private static String mFileName = null;
-
-    private boolean isRecording = false;
-
-    //defining threshold for the alert notifications
-    private static final int THRESHOLD_DB = 70;
-    private Handler handler = new Handler();
+    private TextView statusTV, dbValueTV;
+    private AudioRecord audioRecord;
 
     private ActivityResultLauncher<String> requestPermissionLauncher;
+
+    private boolean isRecording = false;
+    private static final int THRESHOLD_DB_LOW = -20;
+    private static final int THRESHOLD_DB_HIGH = -10;
+
+    private static final int SAMPLE_RATE = 44100;
+    private static final int DURATION = 2;
+    private static final int BUFFER_SIZE = SAMPLE_RATE * DURATION;
+
+    private short[] audioBuffer = new short[BUFFER_SIZE];
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,15 +57,14 @@ public class Fragment1 extends Fragment {
                 });
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_1, container, false);
 
         statusTV = view.findViewById(R.id.status);
         startStopBtn = view.findViewById(R.id.startStopBtn);
+        dbValueTV = view.findViewById(R.id.dbValue);
 
         startStopBtn.setOnClickListener(v -> {
             if (!isRecording) {
@@ -70,78 +74,78 @@ public class Fragment1 extends Fragment {
                     requestPermissionLauncher.launch(RECORD_AUDIO);
                 }
             } else {
-                pauseRecording();
+                stopRecording();
             }
         });
+
         return view;
     }
 
-    // Method to check permissions
+    // True if permission granted
+    // False if permission denied
     private boolean checkPermissions() {
         int result1 = ContextCompat.checkSelfPermission(getContext(), RECORD_AUDIO);
         return result1 == PackageManager.PERMISSION_GRANTED;
     }
 
+    @SuppressLint("MissingPermission")
     private void startRecording() {
-        mFileName = requireActivity().getExternalFilesDir(null).getAbsolutePath() + "/tempRecording.3gp";
-        mediaRecorder = new MediaRecorder();
+        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                SAMPLE_RATE,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                BUFFER_SIZE);
 
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        mediaRecorder.setOutputFile(mFileName);
-
-        try {
-            mediaRecorder.prepare();
-            mediaRecorder.start();
-            Log.d("recordStatus", "Recording started");
-        } catch (IOException e) {
-            Log.e("recordingStatus", "prepare() failed", e);
-        }
-        startStopBtn.setText(getResources().getString(R.string.stopRecording));
-        statusTV.setText(getResources().getString(R.string.recordingStarted));
+        audioRecord.startRecording();
         isRecording = true;
+
+        new Thread(() -> {
+            while (isRecording) {
+                int numberOfShort = audioRecord.read(audioBuffer, 0, BUFFER_SIZE);
+
+                // Calculate avg amplitude for
+                double sum = 0;
+                for (int i = 0; i < numberOfShort; i++) {
+                    sum += audioBuffer[i] * audioBuffer[i];
+                }
+                double amplitude = Math.sqrt(sum / numberOfShort);
+                // Convert to dB
+                float amplitudeDB =  Math.round(20 * Math.log10(amplitude / 32767.0) * 10) / 10;
+                Log.d("AudioStats", "Amplitude: " + amplitude + " dB: " + amplitudeDB);
+
+                if (amplitudeDB > THRESHOLD_DB_HIGH) {
+//                    sendNotification();
+                    dbValueTV.setTextColor(getResources().getColor(R.color.red));
+                    Log.d("AudioStats", "High sound level!");
+                } else if (THRESHOLD_DB_LOW < amplitudeDB && amplitudeDB < THRESHOLD_DB_HIGH) {
+                    dbValueTV.setTextColor(getResources().getColor(R.color.orange));
+                } else {
+                    dbValueTV.setTextColor(getResources().getColor(R.color.black));
+                }
+
+                requireActivity().runOnUiThread(() -> {
+                    dbValueTV.setText(amplitudeDB + " dB");
+                });
+            }
+        }).start();
+
+        startStopBtn.setText(getResources().getString(R.string.stopRecording));
+        statusTV.setText(getResources().getString(R.string.recording));
     }
 
-    private void pauseRecording() {
-        mediaRecorder.stop();
-        mediaRecorder.release();
-        mediaRecorder = null;
+    private void stopRecording() {
+        if (audioRecord != null) {
+            isRecording = false;
+            audioRecord.stop();
+            audioRecord.release();
+            audioRecord = null;
 
-        startStopBtn.setText(getResources().getString(R.string.startRecording));
-        statusTV.setText(getResources().getString(R.string.recordingStopped));
-        isRecording = false;
+            startStopBtn.setText(getResources().getString(R.string.startRecording));
+            statusTV.setText(getResources().getString(R.string.stopped));
+        }
     }
 
-//    //converting the amplitude measured to decibel for our app
-//    public double calculateDecibels(int amplitude) {
-//        if (amplitude > 0) {
-//            return 20 * Math.log10((double) amplitude / 32767);
-//        } else {
-//            return 0;
-//        }
-//    }
-//
-//
-//    private Runnable soundLevelChecker = new Runnable() {
-//        @Override
-//        public void run() {
-//            if (mRecorder != null) {
-//                int amplitude = mRecorder.getMaxAmplitude();
-//                double soundDecibelMeasured = calculateDecibels(amplitude); //convert it to decibel
-//                Log.e("SoundLevel", "Current Sound Level: " + soundDecibelMeasured + " dB");
-//
-//                if (soundDecibelMeasured > THRESHOLD_DB) {
-//                    sendNotification();  //send notification if sound crosses 70 db
-//                }
-//                handler.postDelayed(this, 1000);  // Re-check every second
-//            } else {
-//                Log.e("MainActivity", "MediaRecorder is not initialized.");
-//            }
-//
-//        }
-//    };
-//
+
 //    private void sendNotification() {
 //        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 //        String channelId  = "Sound_Notification_Channel";
