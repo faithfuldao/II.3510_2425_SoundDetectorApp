@@ -23,6 +23,12 @@ import android.widget.Toast;
 
 import android.util.Log;
 
+import com.example.sounddetector.database.SoundDatabaseOperations;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class Fragment1 extends Fragment {
 
     private Button startStopBtn;
@@ -41,6 +47,9 @@ public class Fragment1 extends Fragment {
 
     private short[] audioBuffer = new short[BUFFER_SIZE];
 
+    // for usage of the database
+    private SoundDatabaseOperations dbOperations;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +64,14 @@ public class Fragment1 extends Fragment {
                         Toast.makeText(getContext(), "Permission Denied", Toast.LENGTH_LONG).show();
                     }
                 });
+
+        initializeDatabase();
+    }
+
+    private void initializeDatabase() {
+        dbOperations = new SoundDatabaseOperations(getContext());
+
+
     }
 
     @Override
@@ -99,6 +116,11 @@ public class Fragment1 extends Fragment {
         audioRecord.startRecording();
         isRecording = true;
 
+        //add an entry for this recording session into the database
+        String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+        long sessionId = dbOperations.insertSession(startTime);
+
+
         new Thread(() -> {
             while (isRecording) {
                 int numberOfShort = audioRecord.read(audioBuffer, 0, BUFFER_SIZE);
@@ -122,6 +144,10 @@ public class Fragment1 extends Fragment {
                 } else {
                     dbValueTV.setTextColor(getResources().getColor(R.color.black));
                 }
+
+                //add an entry for this specific record into the database
+                String timeOfRecording = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+                dbOperations.insertMeasurement(sessionId, timeOfRecording, amplitudeDB);
 
                 requireActivity().runOnUiThread(() -> {
                     dbValueTV.setText(amplitudeDB + " dB");
