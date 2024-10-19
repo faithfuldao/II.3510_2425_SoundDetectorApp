@@ -14,4 +14,8 @@
 
     <string name="tab2">Graph</string>
     <string name="tab3">History</string>
+    <string name="sessionID">"Session ID: "</string>
+    <string name="startTime">"Start time: "</string>
+    <string name="avgDB">"Average dB: "</string>
+    <string name="maxDB">"Maximum dB: "</string>
 </resources>
