@@ -125,21 +125,21 @@ public class Fragment1 extends Fragment {
             while (isRecording) {
                 int numberOfShort = audioRecord.read(audioBuffer, 0, BUFFER_SIZE);
 
-                // Calculate avg amplitude for
+                // Calculate avg amplitude for DURATION seconds
                 double sum = 0;
                 for (int i = 0; i < numberOfShort; i++) {
-                    sum += audioBuffer[i] * audioBuffer[i];
+                    sum +=  Math.pow(audioBuffer[i], 2);
                 }
-                double amplitude = Math.sqrt(sum / numberOfShort);
-                // Convert to dB
-                float amplitudeDB =  Math.round(20 * Math.log10(amplitude / 32767.0) * 10) / 10;
-                Log.d("AudioStats", "Amplitude: " + amplitude + " dB: " + amplitudeDB);
+                double avgAmplitude = Math.sqrt(sum / numberOfShort);
+                // Convert to dB 0.1 precision: 20 * Math.log10(avgAmplitude / 32767.0)
+                float amplitudeDB =  Math.round(20 * Math.log10(avgAmplitude / 32767.0) * 10) / 10;
+                Log.d("AudioStats", "Average amplitude: " + avgAmplitude + " dB: " + amplitudeDB);
 
-                if (amplitudeDB > THRESHOLD_DB_HIGH) {
+                if (amplitudeDB >= THRESHOLD_DB_HIGH) {
 //                    sendNotification();
                     dbValueTV.setTextColor(getResources().getColor(R.color.red));
                     Log.d("AudioStats", "High sound level!");
-                } else if (THRESHOLD_DB_LOW < amplitudeDB && amplitudeDB < THRESHOLD_DB_HIGH) {
+                } else if (THRESHOLD_DB_LOW <= amplitudeDB && amplitudeDB < THRESHOLD_DB_HIGH) {
                     dbValueTV.setTextColor(getResources().getColor(R.color.orange));
                 } else {
                     dbValueTV.setTextColor(getResources().getColor(R.color.black));
@@ -150,7 +150,7 @@ public class Fragment1 extends Fragment {
                 dbOperations.insertMeasurement(sessionId, timeOfRecording, amplitudeDB);
 
                 requireActivity().runOnUiThread(() -> {
-                    dbValueTV.setText(amplitudeDB + " dB");
+                    dbValueTV.setText(amplitudeDB + " dB FS");
                 });
             }
         }).start();

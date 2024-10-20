@@ -7,7 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
 This class is written with orientation from this documentation and
@@ -97,7 +99,8 @@ public class SoundDatabaseOperations {
                 "MAX(m.decibel_level) AS max_decibel_level " +
                 "FROM Sessions s " +
                 "LEFT JOIN Measurements m ON s.session_id = m.session_id " +
-                "GROUP BY s.session_id, s.start_time";
+                "GROUP BY s.session_id, s.start_time " +
+                "ORDER BY s.session_id DESC";
 
         Cursor cursor = db.rawQuery(query, null);
 

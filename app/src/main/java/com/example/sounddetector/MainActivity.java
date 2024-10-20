@@ -61,28 +61,44 @@ public class MainActivity extends AppCompatActivity {
     private void insertTestData() {
         // Insert test Sessions and Measurements
         long sessionId1 = dbOperations.insertSession("2024-10-16 14:30:00");  // Session 1
-        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:30:05", 70.5);
-        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:35:10", 72.3);
-        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:40:15", 68.7);
+        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:30:05", -70.5);
+        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:35:10", -72.3);
+        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:40:15", -68.7);
 
         long sessionId2 = dbOperations.insertSession("2024-10-17 09:15:00");  // Session 2
-        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:15:05", 0.0);
-        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:20:10", 5.0);
-        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:25:15", 10.0);
+        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:15:05", -0.0);
+        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:20:10", -5.0);
+        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:25:15", -10.0);
 
         long sessionId3 = dbOperations.insertSession("2024-10-18 11:45:00");  // Session 3
-        dbOperations.insertMeasurement(sessionId3, "2024-10-18 11:45:05", 80.5);
-        dbOperations.insertMeasurement(sessionId3, "2024-10-18 11:50:10", 82.3);
-        dbOperations.insertMeasurement(sessionId3, "2024-10-18 11:55:15", 78.9);
+        dbOperations.insertMeasurement(sessionId3, "2024-10-18 11:45:05", -80.5);
+        dbOperations.insertMeasurement(sessionId3, "2024-10-18 11:50:10", -82.3);
+        dbOperations.insertMeasurement(sessionId3, "2024-10-18 11:55:15", -78.9);
 
         long sessionId4 = dbOperations.insertSession("2024-10-19 16:00:00");  // Session 4
-        dbOperations.insertMeasurement(sessionId4, "2024-10-19 16:00:05", 55.5);
-        dbOperations.insertMeasurement(sessionId4, "2024-10-19 16:05:10", 58.0);
-        dbOperations.insertMeasurement(sessionId4, "2024-10-19 16:10:15", 60.3);
+        dbOperations.insertMeasurement(sessionId4, "2024-10-19 16:00:05", -55.5);
+        dbOperations.insertMeasurement(sessionId4, "2024-10-19 16:05:10", -58.0);
+        dbOperations.insertMeasurement(sessionId4, "2024-10-19 16:10:15", -60.3);
 
         long sessionId5 = dbOperations.insertSession("2024-10-20 08:00:00");  // Session 5
-        dbOperations.insertMeasurement(sessionId5, "2024-10-20 08:00:05", 75.6);
-        dbOperations.insertMeasurement(sessionId5, "2024-10-20 08:05:10", 77.8);
-        dbOperations.insertMeasurement(sessionId5, "2024-10-20 08:10:15", 80.1);
+        dbOperations.insertMeasurement(sessionId5, "2024-10-20 08:00:05", -75.6);
+        dbOperations.insertMeasurement(sessionId5, "2024-10-20 08:05:10", -77.8);
+        dbOperations.insertMeasurement(sessionId5, "2024-10-20 08:10:15", -80.1);
+
+        long sessionId6 = dbOperations.insertSession("2024-10-21 08:00:00");  // Session 6
+        dbOperations.insertMeasurement(sessionId6, "2024-10-21 08:00:05", -75.6);
+        dbOperations.insertMeasurement(sessionId6, "2024-10-21 08:05:10", -77.8);
+        dbOperations.insertMeasurement(sessionId6, "2024-10-21 08:10:15", -80.1);
+
+        long sessionId7 = dbOperations.insertSession("2024-10-22 14:30:00");  // Session 7
+        dbOperations.insertMeasurement(sessionId7, "2024-10-22 14:30:05", -70.5);
+        dbOperations.insertMeasurement(sessionId7, "2024-10-22 14:35:10", -72.3);
+        dbOperations.insertMeasurement(sessionId7, "2024-10-22 14:40:15", -68.7);
+
+        long sessionId8 = dbOperations.insertSession("2024-10-23 09:15:00");  // Session 8
+        dbOperations.insertMeasurement(sessionId8, "2024-10-23 09:15:05", -0.0);
+        dbOperations.insertMeasurement(sessionId8, "2024-10-23 09:20:10", -5.0);
+        dbOperations.insertMeasurement(sessionId8, "2024-10-23 09:25:15", -10.0);
+
     }
 }

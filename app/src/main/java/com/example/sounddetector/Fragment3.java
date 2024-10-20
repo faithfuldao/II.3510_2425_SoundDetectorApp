@@ -18,6 +18,9 @@ import java.util.List;
 
 public class Fragment3 extends Fragment {
 
+    private SessionAdapter adapter;
+    private List<RecordingSession> sessions;
+
     public Fragment3() {
         // Required empty public constructor
     }
@@ -34,14 +37,26 @@ public class Fragment3 extends Fragment {
 
         // Get the list of sessions from the database
         SoundDatabaseOperations dbOperations = new SoundDatabaseOperations(getContext());
-        List<RecordingSession> sessions = dbOperations.getRecordingSessions();  // Methode von oben
+        sessions = dbOperations.getRecordingSessions();
 
         // Set up the adapter with the session list
-        SessionAdapter adapter = new SessionAdapter(sessions);
+        adapter = new SessionAdapter(sessions);
         recyclerView.setAdapter(adapter);
 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Get the updated list of sessions from the database
+        updateSessionList();
+    }
+
+    private void updateSessionList() {
+        SoundDatabaseOperations dbOperations = new SoundDatabaseOperations(getContext());
+        sessions.clear();
+        sessions.addAll(dbOperations.getRecordingSessions());
+    }
 
 }

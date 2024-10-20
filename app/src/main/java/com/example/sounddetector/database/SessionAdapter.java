@@ -30,8 +30,8 @@ public class SessionAdapter extends RecyclerView.Adapter<SessionAdapter.SessionV
         RecordingSession session = sessionList.get(position);
         holder.sessionIdText.setText(String.valueOf(session.getSessionId()));
         holder.startTimeText.setText(session.getStartTime());
-        holder.avgDecibelText.setText(String.format("%.2f dB", session.getAvgDecibel()));
-        holder.maxDecibelText.setText(String.format("%.2f dB", session.getMaxDecibel()));
+        holder.avgDecibelText.setText(String.format("%.1f dB", session.getAvgDecibel()));
+        holder.maxDecibelText.setText(String.format("%.1f dB", session.getMaxDecibel()));
     }
 
     @Override
