@@ -57,6 +57,7 @@ public class Fragment3 extends Fragment {
         SoundDatabaseOperations dbOperations = new SoundDatabaseOperations(getContext());
         sessions.clear();
         sessions.addAll(dbOperations.getRecordingSessions());
+        adapter.notifyDataSetChanged();
     }
 
 }
