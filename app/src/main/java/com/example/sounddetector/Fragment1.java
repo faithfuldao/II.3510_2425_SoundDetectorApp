@@ -3,14 +3,19 @@ package com.example.sounddetector;
 import static android.Manifest.permission.RECORD_AUDIO;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -36,10 +41,11 @@ public class Fragment1 extends Fragment {
     private AudioRecord audioRecord;
 
     private ActivityResultLauncher<String> requestPermissionLauncher;
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
 
     private boolean isRecording = false;
-    private static final int THRESHOLD_DB_LOW = -20;
-    private static final int THRESHOLD_DB_HIGH = -10;
+    private static final int THRESHOLD_DB_LOW = -30;
+    private static final int THRESHOLD_DB_HIGH = -15;
 
     private static final int SAMPLE_RATE = 44100;
     private static final int DURATION = 2;
@@ -54,17 +60,10 @@ public class Fragment1 extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestPermissionLauncher =
-                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted) {
-                        Toast.makeText(getContext(), "Permission Granted", Toast.LENGTH_LONG).show();
-                        startRecording();
-                    } else {
-                        Toast.makeText(getContext(), "Permission Denied", Toast.LENGTH_LONG).show();
-                    }
-                });
-
+        requestSoundPermission();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission();
+        }
         initializeDatabase();
     }
 
@@ -98,13 +97,31 @@ public class Fragment1 extends Fragment {
         return view;
     }
 
-    // True if permission granted
-    // False if permission denied
+    /**
+     * Check if the RECORD_AUDIO permission is granted.
+     * @return true if granted, false otherwise
+     */
     private boolean checkPermissions() {
         int result1 = ContextCompat.checkSelfPermission(getContext(), RECORD_AUDIO);
         return result1 == PackageManager.PERMISSION_GRANTED;
     }
 
+    private void requestSoundPermission() {
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        Toast.makeText(getContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                        startRecording();
+                    } else {
+                        Toast.makeText(getContext(), "Permission Denied", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    /**
+     * Start recording audio in a separate thread.
+     * Add values in database
+     */
     @SuppressLint("MissingPermission")
     private void startRecording() {
         audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
@@ -136,7 +153,7 @@ public class Fragment1 extends Fragment {
                 Log.d("AudioStats", "Average amplitude: " + avgAmplitude + " dB: " + amplitudeDB);
 
                 if (amplitudeDB >= THRESHOLD_DB_HIGH) {
-//                    sendNotification();
+                    sendNotification();
                     dbValueTV.setTextColor(getResources().getColor(R.color.red));
                     Log.d("AudioStats", "High sound level!");
                 } else if (THRESHOLD_DB_LOW <= amplitudeDB && amplitudeDB < THRESHOLD_DB_HIGH) {
@@ -172,24 +189,40 @@ public class Fragment1 extends Fragment {
     }
 
 
-//    private void sendNotification() {
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        String channelId  = "Sound_Notification_Channel";
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel channel = new NotificationChannel(channelId, "Sound Notification", NotificationManager.IMPORTANCE_HIGH);
-//            notificationManager.createNotificationChannel(channel);
-//        }
-//
-//        Notification notification = new NotificationCompat.Builder(this, channelId)
-//                .setSmallIcon(R.drawable.icnotification)
-//                .setContentTitle("Sound Alert")
-//                .setContentText("Ambiant sound crossed 70db")
-//                .setPriority(NotificationCompat.PRIORITY_HIGH)
-//                .build();
-//
-//        notificationManager.notify(1, notification);
-//    }
+    private void requestNotificationPermission() {
+        requestNotificationPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        Toast.makeText(getContext(), "Notification Permission Granted", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getContext(), "Notification Permission Denied", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestNotificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private void sendNotification() {
+        NotificationManager notificationManager = requireActivity().getSystemService(NotificationManager.class);
+        String channelId  = "Sound_Notification_Channel";
+
+        NotificationChannel channel = new NotificationChannel(channelId, "Sound Notification", NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+
+        Notification notification = new NotificationCompat.Builder(requireActivity(), channelId)
+                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setContentTitle("Sound Alert")
+                .setContentText("Ambiant sound crossed " +THRESHOLD_DB_HIGH + " dB FS threshold")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .build();
+
+        notificationManager.notify(1, notification);
+    }
 }
 
 
