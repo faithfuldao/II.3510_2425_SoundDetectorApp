@@ -82,9 +82,6 @@ public class SoundDatabaseOperations {
         return decibelLevels;
     }
 
-    // Add more methods as needed for other CRUD operations
-
-
     /**
      * This method is used to get the record sessions with the two measures "avg-decibel"
      * and "max-decibel". This method is used to get the needed data for our history view.
@@ -120,6 +117,63 @@ public class SoundDatabaseOperations {
         db.close();
 
         return sessions;
+    }
+
+    // Methods to get the measurements for specific dates and date ranges
+    // for graph visualisation in fragment 2
+
+    /**
+     * Retrieves all measurements from the database for a specific day.
+     *
+     * @param db   The readable SQLiteDatabase instance.
+     * @param date The specific day in the format 'YYYY-MM-DD'.
+     * @return A Cursor containing the results of the query, or null if no results found.
+     */
+    public Cursor getMeasurementsForDay(SQLiteDatabase db, String date) {
+        String query = "SELECT * FROM Measurements WHERE DATE(timestamp) = ?";
+        String[] selectionArgs = { date };
+        return db.rawQuery(query, selectionArgs);
+    }
+
+    /**
+     * Retrieves all measurements from the database for a specific week of the year.
+     *
+     * @param db          The readable SQLiteDatabase instance.
+     * @param year        The year in the format 'YYYY'.
+     * @param weekNumber  The week number in the format 'WW' (e.g., '42' for the 42nd week).
+     * @return A Cursor containing the results of the query, or null if no results found.
+     */
+    public Cursor getMeasurementsForWeek(SQLiteDatabase db, String year, String weekNumber) {
+        String query = "SELECT * FROM Measurements WHERE strftime('%Y', timestamp) = ? AND strftime('%W', timestamp) = ?";
+        String[] selectionArgs = { year, weekNumber };
+        return db.rawQuery(query, selectionArgs);
+    }
+
+    /**
+     * Retrieves all measurements from the database for a specific month of the year.
+     *
+     * @param db    The readable SQLiteDatabase instance.
+     * @param year  The year in the format 'YYYY'.
+     * @param month The month in the format 'MM' (e.g., '10' for October).
+     * @return A Cursor containing the results of the query, or null if no results found.
+     */
+    public Cursor getMeasurementsForMonth(SQLiteDatabase db, String year, String month) {
+        String query = "SELECT * FROM Measurements WHERE strftime('%Y', timestamp) = ? AND strftime('%m', timestamp) = ?";
+        String[] selectionArgs = { year, month };
+        return db.rawQuery(query, selectionArgs);
+    }
+
+    /**
+     * Retrieves all measurements from the database for a specific year.
+     *
+     * @param db   The readable SQLiteDatabase instance.
+     * @param year The year in the format 'YYYY'.
+     * @return A Cursor containing the results of the query, or null if no results found.
+     */
+    public Cursor getMeasurementsForYear(SQLiteDatabase db, String year) {
+        String query = "SELECT * FROM Measurements WHERE strftime('%Y', timestamp) = ?";
+        String[] selectionArgs = { year };
+        return db.rawQuery(query, selectionArgs);
     }
 
 }

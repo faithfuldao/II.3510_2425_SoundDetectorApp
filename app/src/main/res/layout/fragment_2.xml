@@ -5,10 +5,85 @@
     android:layout_height="match_parent"
     tools:context=".Fragment2">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/tab2"
-        android:gravity="center" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:id="@+id/start_date_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/example_date"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"/>
+        <Button
+            android:id="@+id/pick_start_date_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_start_date"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/start_time_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/example_time"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"/>
+        <Button
+            android:id="@+id/pick_time_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_start_time"
+            android:layout_marginBottom="40dp"
+            android:layout_gravity="center"/>
+
+
+
+
+        <TextView
+            android:id="@+id/end_date_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/example_date"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"/>
+        <Button
+            android:id="@+id/pick_end_date_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_start_date"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/end_time_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/example_time"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"/>
+        <Button
+            android:id="@+id/pick_end_time_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_start_time"
+            android:layout_marginBottom="40dp"
+            android:layout_gravity="center"/>
+
+
+
+        <Button
+            android:id="@+id/plot_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/plot"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
 
 </FrameLayout>

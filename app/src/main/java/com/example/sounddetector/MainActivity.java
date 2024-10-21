@@ -60,15 +60,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void insertTestData() {
         // Insert test Sessions and Measurements
-        long sessionId1 = dbOperations.insertSession("2024-10-16 14:30:00");  // Session 1
-        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:30:05", -70.5);
-        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:35:10", -72.3);
-        dbOperations.insertMeasurement(sessionId1, "2024-10-16 14:40:15", -68.7);
+        long sessionId1 = dbOperations.insertSession("2024-08-16 14:30:00");  // Session 1
+        dbOperations.insertMeasurement(sessionId1, "2024-08-16 14:30:05", -70.5);
+        dbOperations.insertMeasurement(sessionId1, "2024-08-16 14:35:10", -72.3);
+        dbOperations.insertMeasurement(sessionId1, "2024-08-16 14:40:15", -68.7);
 
-        long sessionId2 = dbOperations.insertSession("2024-10-17 09:15:00");  // Session 2
-        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:15:05", -0.0);
-        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:20:10", -5.0);
-        dbOperations.insertMeasurement(sessionId2, "2024-10-17 09:25:15", -10.0);
+        long sessionId2 = dbOperations.insertSession("2024-09-17 09:15:00");  // Session 2
+        dbOperations.insertMeasurement(sessionId2, "2024-09-17 09:15:05", -0.0);
+        dbOperations.insertMeasurement(sessionId2, "2024-09-17 09:20:10", -5.0);
+        dbOperations.insertMeasurement(sessionId2, "2024-09-17 09:25:15", -10.0);
 
         long sessionId3 = dbOperations.insertSession("2024-10-18 11:45:00");  // Session 3
         dbOperations.insertMeasurement(sessionId3, "2024-10-18 11:45:05", -80.5);
@@ -99,6 +99,5 @@ public class MainActivity extends AppCompatActivity {
         dbOperations.insertMeasurement(sessionId8, "2024-10-23 09:15:05", -0.0);
         dbOperations.insertMeasurement(sessionId8, "2024-10-23 09:20:10", -5.0);
         dbOperations.insertMeasurement(sessionId8, "2024-10-23 09:25:15", -10.0);
-
     }
 }
