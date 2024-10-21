@@ -95,6 +95,7 @@ public class Fragment2 extends Fragment {
         }, 2024, 10, 20);
         datePickerDialog.show();
     }
+
     private void openStartTimePicker () {
         TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), R.style.DialogTheme, new TimePickerDialog.OnTimeSetListener() {
             @Override
@@ -106,6 +107,7 @@ public class Fragment2 extends Fragment {
         }, 15, 30, true);
         timePickerDialog.show();
     }
+
     private void openEndDatePicker() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -118,6 +120,7 @@ public class Fragment2 extends Fragment {
         }, 2024, 10, 20);
         datePickerDialog.show();
     }
+
     private void openEndTimePicker () {
         TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), R.style.DialogTheme, new TimePickerDialog.OnTimeSetListener() {
             @Override

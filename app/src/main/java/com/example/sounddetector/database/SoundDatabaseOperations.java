@@ -54,7 +54,12 @@ public class SoundDatabaseOperations {
         db.close();
         return sessionId;
     }
-
+    /**
+     * This method is used to insert a measurement into the database.
+     * @param sessionId The ID of the session to which the measurement belongs.
+     * @param timestamp The timestamp of the measurement (YYYY-MM-DD HH:MM:SS).
+     * @param decibelLevel The decibel level of the measurement.
+     */
     public void insertMeasurement(long sessionId, String timestamp, double decibelLevel) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -66,6 +71,11 @@ public class SoundDatabaseOperations {
         db.close();
     }
 
+    /**
+     * This method is used to get the measurements for a specific session.
+     * @param sessionId The ID of the session.
+     * @return List of decibel levels for the session.
+     */
     public List<Double> getMeasurementsForSession(long sessionId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<Double> decibelLevels = new ArrayList<>();

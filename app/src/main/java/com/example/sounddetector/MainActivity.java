@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Predefined test data for the database.
+     */
     private void insertTestData() {
         // Insert test Sessions and Measurements
         long sessionId1 = dbOperations.insertSession("2024-08-16 14:30:00");  // Session 1
