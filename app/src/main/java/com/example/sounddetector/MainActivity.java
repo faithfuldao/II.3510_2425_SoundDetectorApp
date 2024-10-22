@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(this);
         viewPagerAdapter.addFragment(new Fragment1(), getString(R.string.home));
-        viewPagerAdapter.addFragment(new Fragment2(), getString(R.string.graph));
+        viewPagerAdapter.addFragment(new Fragment2(), getString(R.string.search));
         viewPagerAdapter.addFragment(new Fragment3(), getString(R.string.history));
         viewPager.setAdapter(viewPagerAdapter);
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) ->

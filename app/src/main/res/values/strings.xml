@@ -2,7 +2,7 @@
     <string name="app_name">SoundDetector</string>
 
     <string name="home">Home</string>
-    <string name="graph">Graph</string>
+    <string name="search">Search</string>
     <string name="history">History</string>
 
 
@@ -13,21 +13,17 @@
     <string name="stopRecording">Stop recording</string>
 
 
-    <string name="tab2">Graph</string>
+    <string name="tab2">Search</string>
     <string name="example_date">2024-10-16</string>
-    <string name="example_time">14:30:00</string>
-
-    <string name="pick_start_date">Pick start date</string>
-    <string name="pick_start_time">Pick start time</string>
-    <string name="pick_end_date">Pick end date</string>
-    <string name="pick_end_time">Pick end time</string>
-
-    <string name="plot">Plot</string>
-
+    <string name="pick_date">Pick start date</string>
 
     <string name="tab3">History</string>
     <string name="sessionID">"Session ID: "</string>
     <string name="startTime">"Start time: "</string>
     <string name="avgDB">"Average dB: "</string>
     <string name="maxDB">"Maximum dB: "</string>
+
+    <string name="measurementID">"Measurement ID: "</string>
+    <string name="decibelLevel">"Decibel level: "</string>
+    <string name="timestamp">"Timestamp: "</string>
 </resources>
