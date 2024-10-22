@@ -9,30 +9,42 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-This class is written with orientation from this documentation and
-example from: https://developer.android.com/training/data-storage/sqlite#java
+/**
+ * This class handles database operations for managing sound recording sessions
+ * and measurements. It provides methods for inserting, retrieving, and managing
+ * data in the Sessions and Measurements tables.
+ *
+ * This class is based on the official SQLite documentation from:
+ * https://developer.android.com/training/data-storage/sqlite#java
  */
 public class SoundDatabaseOperations {
     private SoundDatabaseHelper dbHelper;
 
+    /**
+     * Constructor for SoundDatabaseOperations.
+     *
+     * @param context The context of the application (used to create the database helper).
+     */
     public SoundDatabaseOperations(Context context) {
         dbHelper = new SoundDatabaseHelper(context);
     }
 
+    /**
+     * Resets the database by dropping and recreating the Sessions and Measurements tables.
+     * This should be used with caution, as it will remove all data from the tables.
+     */
     public void resetDatabase() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        // Drop the tables if they exist
+        // Drop existing tables if they exist
         db.execSQL("DROP TABLE IF EXISTS Measurements;");
         db.execSQL("DROP TABLE IF EXISTS Sessions;");
 
-        // Recreate the Sessions table
+        // Recreate the Sessions and Measurements tables
         db.execSQL("CREATE TABLE Sessions (" +
                 "session_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "start_time TEXT)");
 
-        // Recreate the Measurements table
         db.execSQL("CREATE TABLE Measurements (" +
                 "measurement_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "session_id INTEGER, " +
@@ -43,6 +55,12 @@ public class SoundDatabaseOperations {
         db.close();  // Close the database connection
     }
 
+    /**
+     * Inserts a new recording session into the Sessions table.
+     *
+     * @param startTime The start time of the session as a String.
+     * @return The ID of the newly inserted session.
+     */
     public long insertSession(String startTime) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -52,11 +70,13 @@ public class SoundDatabaseOperations {
         db.close();
         return sessionId;
     }
+
     /**
-     * This method is used to insert a measurement into the database.
-     * @param sessionId The ID of the session to which the measurement belongs.
-     * @param timestamp The timestamp of the measurement (YYYY-MM-DD HH:MM:SS).
-     * @param decibelLevel The decibel level of the measurement.
+     * Inserts a new measurement into the Measurements table.
+     *
+     * @param sessionId    The ID of the session this measurement belongs to.
+     * @param timestamp    The timestamp of the measurement in the format 'YYYY-MM-DD HH:MM:SS'.
+     * @param decibelLevel The decibel level recorded during the measurement.
      */
     public void insertMeasurement(long sessionId, String timestamp, double decibelLevel) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -70,9 +90,10 @@ public class SoundDatabaseOperations {
     }
 
     /**
-     * This method is used to get the measurements for a specific session.
-     * @param sessionId The ID of the session.
-     * @return List of decibel levels for the session.
+     * Retrieves all decibel measurements for a specific session.
+     *
+     * @param sessionId The ID of the session for which measurements are retrieved.
+     * @return A list of decibel levels associated with the specified session.
      */
     public List<Double> getMeasurementsForSession(long sessionId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -91,9 +112,10 @@ public class SoundDatabaseOperations {
     }
 
     /**
-     * This method is used to get the record sessions with the two measures "avg-decibel"
-     * and "max-decibel". This method is used to get the needed data for our history view.
-     * @return List of recording session object with added fields "avg-decibel" and "max-decibel"
+     * Retrieves a list of recording sessions with their average and maximum decibel levels.
+     *
+     * @return A list of RecordingSession objects, each containing session ID, start time,
+     *         average decibel level, and maximum decibel level.
      */
     public List<RecordingSession> getRecordingSessions() {
         List<RecordingSession> sessions = new ArrayList<>();
@@ -127,15 +149,14 @@ public class SoundDatabaseOperations {
         return sessions;
     }
 
-    // Methods to get the measurements for specific dates and date ranges
-    // for graph visualisation in fragment 2
+    // Methods to retrieve measurements for specific dates or date ranges
 
     /**
      * Retrieves all measurements from the database for a specific day.
      *
      * @param db   The readable SQLiteDatabase instance.
      * @param date The specific day in the format 'YYYY-MM-DD'.
-     * @return A Cursor containing the results of the query, or null if no results found.
+     * @return A Cursor containing the results of the query.
      */
     public Cursor getMeasurementsForDay(SQLiteDatabase db, String date) {
         String query = "SELECT * FROM Measurements WHERE DATE(timestamp) = ?";
@@ -146,10 +167,10 @@ public class SoundDatabaseOperations {
     /**
      * Retrieves all measurements from the database for a specific week of the year.
      *
-     * @param db          The readable SQLiteDatabase instance.
-     * @param year        The year in the format 'YYYY'.
-     * @param weekNumber  The week number in the format 'WW' (e.g., '42' for the 42nd week).
-     * @return A Cursor containing the results of the query, or null if no results found.
+     * @param db         The readable SQLiteDatabase instance.
+     * @param year       The year in the format 'YYYY'.
+     * @param weekNumber The week number in the format 'WW'.
+     * @return A Cursor containing the results of the query.
      */
     public Cursor getMeasurementsForWeek(SQLiteDatabase db, String year, String weekNumber) {
         String query = "SELECT * FROM Measurements WHERE strftime('%Y', timestamp) = ? AND strftime('%W', timestamp) = ?";
@@ -162,8 +183,8 @@ public class SoundDatabaseOperations {
      *
      * @param db    The readable SQLiteDatabase instance.
      * @param year  The year in the format 'YYYY'.
-     * @param month The month in the format 'MM' (e.g., '10' for October).
-     * @return A Cursor containing the results of the query, or null if no results found.
+     * @param month The month in the format 'MM'.
+     * @return A Cursor containing the results of the query.
      */
     public Cursor getMeasurementsForMonth(SQLiteDatabase db, String year, String month) {
         String query = "SELECT * FROM Measurements WHERE strftime('%Y', timestamp) = ? AND strftime('%m', timestamp) = ?";
@@ -176,12 +197,11 @@ public class SoundDatabaseOperations {
      *
      * @param db   The readable SQLiteDatabase instance.
      * @param year The year in the format 'YYYY'.
-     * @return A Cursor containing the results of the query, or null if no results found.
+     * @return A Cursor containing the results of the query.
      */
     public Cursor getMeasurementsForYear(SQLiteDatabase db, String year) {
         String query = "SELECT * FROM Measurements WHERE strftime('%Y', timestamp) = ?";
         String[] selectionArgs = { year };
         return db.rawQuery(query, selectionArgs);
     }
-
 }

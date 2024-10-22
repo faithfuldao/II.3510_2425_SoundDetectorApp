@@ -34,6 +34,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Fragment1 handles sound recording functionality and interacts with the database.
+ * It manages the UI components, starts and stops the recording, logs data to the database,
+ * and triggers notifications when a sound level exceeds a defined threshold.
+ */
 public class Fragment1 extends Fragment {
 
     private Button startStopBtn;
@@ -53,9 +58,8 @@ public class Fragment1 extends Fragment {
 
     private short[] audioBuffer = new short[BUFFER_SIZE];
 
-    // for usage of the database
+    // Database operations
     private SoundDatabaseOperations dbOperations;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,15 +71,15 @@ public class Fragment1 extends Fragment {
         initializeDatabase();
     }
 
+    /**
+     * Initializes the database operations by creating an instance of SoundDatabaseOperations.
+     */
     private void initializeDatabase() {
         dbOperations = new SoundDatabaseOperations(getContext());
-
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_1, container, false);
 
         statusTV = view.findViewById(R.id.status);
@@ -98,29 +102,32 @@ public class Fragment1 extends Fragment {
     }
 
     /**
-     * Check if the RECORD_AUDIO permission is granted.
-     * @return true if granted, false otherwise
+     * Checks if the required RECORD_AUDIO permission is granted.
+     *
+     * @return true if permission is granted, false otherwise.
      */
     private boolean checkPermissions() {
         int result1 = ContextCompat.checkSelfPermission(getContext(), RECORD_AUDIO);
         return result1 == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Requests permission to record audio. If permission is granted, starts the recording process.
+     */
     private void requestSoundPermission() {
-        requestPermissionLauncher =
-                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted) {
-                        Toast.makeText(getContext(), "Permission Granted", Toast.LENGTH_LONG).show();
-                        startRecording();
-                    } else {
-                        Toast.makeText(getContext(), "Permission Denied", Toast.LENGTH_LONG).show();
-                    }
-                });
+        requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+                Toast.makeText(getContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                startRecording();
+            } else {
+                Toast.makeText(getContext(), "Permission Denied", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     /**
-     * Start recording audio in a separate thread.
-     * Add values in database
+     * Starts audio recording in a separate thread and logs the data in the database.
+     * Also updates the UI and sends notifications when the sound level exceeds a defined threshold.
      */
     @SuppressLint("MissingPermission")
     private void startRecording() {
@@ -133,25 +140,25 @@ public class Fragment1 extends Fragment {
         audioRecord.startRecording();
         isRecording = true;
 
-        //add an entry for this recording session into the database
+        // Insert a new recording session into the database
         String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
         long sessionId = dbOperations.insertSession(startTime);
-
 
         new Thread(() -> {
             while (isRecording) {
                 int numberOfShort = audioRecord.read(audioBuffer, 0, BUFFER_SIZE);
 
-                // Calculate avg amplitude for DURATION seconds
+                // Calculate average amplitude
                 double sum = 0;
                 for (int i = 0; i < numberOfShort; i++) {
-                    sum +=  Math.pow(audioBuffer[i], 2);
+                    sum += Math.pow(audioBuffer[i], 2);
                 }
                 double avgAmplitude = Math.sqrt(sum / numberOfShort);
-                // Convert to dB 0.1 precision: 20 * Math.log10(avgAmplitude / 32767.0)
-                float amplitudeDB =  Math.round(20 * Math.log10(avgAmplitude / 32767.0) * 10) / 10;
+                // Convert amplitude to decibels
+                float amplitudeDB = Math.round(20 * Math.log10(avgAmplitude / 32767.0) * 10) / 10;
                 Log.d("AudioStats", "Average amplitude: " + avgAmplitude + " dB: " + amplitudeDB);
 
+                // Update UI based on sound levels
                 if (amplitudeDB >= THRESHOLD_DB_HIGH) {
                     sendNotification();
                     dbValueTV.setTextColor(getResources().getColor(R.color.red));
@@ -162,13 +169,11 @@ public class Fragment1 extends Fragment {
                     dbValueTV.setTextColor(getResources().getColor(R.color.black));
                 }
 
-                //add an entry for this specific record into the database
+                // Insert the measurement into the database
                 String timeOfRecording = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
                 dbOperations.insertMeasurement(sessionId, timeOfRecording, amplitudeDB);
 
-                requireActivity().runOnUiThread(() -> {
-                    dbValueTV.setText(amplitudeDB + " dB FS");
-                });
+                requireActivity().runOnUiThread(() -> dbValueTV.setText(amplitudeDB + " dB FS"));
             }
         }).start();
 
@@ -176,6 +181,9 @@ public class Fragment1 extends Fragment {
         statusTV.setText(getResources().getString(R.string.recording));
     }
 
+    /**
+     * Stops the audio recording process and releases the AudioRecord instance.
+     */
     private void stopRecording() {
         if (audioRecord != null) {
             isRecording = false;
@@ -188,16 +196,18 @@ public class Fragment1 extends Fragment {
         }
     }
 
-
+    /**
+     * Requests permission to post notifications, specifically for Android versions
+     * where this permission is required (TIRAMISU and above).
+     */
     private void requestNotificationPermission() {
-        requestNotificationPermissionLauncher =
-                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                    if (isGranted) {
-                        Toast.makeText(getContext(), "Notification Permission Granted", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getContext(), "Notification Permission Denied", Toast.LENGTH_LONG).show();
-                    }
-                });
+        requestNotificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+                Toast.makeText(getContext(), "Notification Permission Granted", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), "Notification Permission Denied", Toast.LENGTH_LONG).show();
+            }
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -206,10 +216,14 @@ public class Fragment1 extends Fragment {
         }
     }
 
+    /**
+     * Sends a notification when the sound level exceeds the defined threshold.
+     * A notification channel is created if it doesn't already exist.
+     */
     @SuppressLint("NewApi")
     private void sendNotification() {
         NotificationManager notificationManager = requireActivity().getSystemService(NotificationManager.class);
-        String channelId  = "Sound_Notification_Channel";
+        String channelId = "Sound_Notification_Channel";
 
         NotificationChannel channel = new NotificationChannel(channelId, "Sound Notification", NotificationManager.IMPORTANCE_HIGH);
         notificationManager.createNotificationChannel(channel);
@@ -217,13 +231,10 @@ public class Fragment1 extends Fragment {
         Notification notification = new NotificationCompat.Builder(requireActivity(), channelId)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentTitle("Sound Alert")
-                .setContentText("Ambiant sound crossed " +THRESHOLD_DB_HIGH + " dB FS threshold")
+                .setContentText("Ambient sound exceeded " + THRESHOLD_DB_HIGH + " dB FS threshold")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
 
         notificationManager.notify(1, notification);
     }
 }
-
-
-

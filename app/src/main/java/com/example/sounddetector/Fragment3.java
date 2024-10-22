@@ -16,15 +16,32 @@ import com.example.sounddetector.database.SoundDatabaseOperations;
 
 import java.util.List;
 
+/**
+ * Fragment3 displays a list of recorded sessions using a RecyclerView.
+ * It retrieves the session data from the database and updates the view accordingly.
+ */
 public class Fragment3 extends Fragment {
 
-    private SessionAdapter adapter;
-    private List<RecordingSession> sessions;
+    private SessionAdapter adapter; // Adapter for managing the display of sessions
+    private List<RecordingSession> sessions; // List of recording sessions
 
+    /**
+     * Default constructor for Fragment3.
+     * This constructor is required for fragment creation.
+     */
     public Fragment3() {
         // Required empty public constructor
     }
 
+    /**
+     * Called to create the fragment's view hierarchy. This method inflates the layout
+     * and initializes the RecyclerView for displaying the list of recording sessions.
+     *
+     * @param inflater LayoutInflater to inflate the fragment's view.
+     * @param container ViewGroup that contains the fragment's view.
+     * @param savedInstanceState Bundle containing the saved state of the fragment.
+     * @return The created view for the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -46,6 +63,10 @@ public class Fragment3 extends Fragment {
         return view;
     }
 
+    /**
+     * Called when the fragment becomes visible to the user.
+     * This method refreshes the session list by retrieving updated data from the database.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -53,11 +74,14 @@ public class Fragment3 extends Fragment {
         updateSessionList();
     }
 
+    /**
+     * Updates the list of recording sessions by querying the database
+     * and notifying the adapter of the changes.
+     */
     private void updateSessionList() {
         SoundDatabaseOperations dbOperations = new SoundDatabaseOperations(getContext());
         sessions.clear();
         sessions.addAll(dbOperations.getRecordingSessions());
         adapter.notifyDataSetChanged();
     }
-
 }

@@ -25,6 +25,11 @@ import com.example.sounddetector.result.ResultsActivity;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment2 allows the user to select a date and filter measurements by year, month, or day.
+ * Users can view sound measurement results based on the selected date range.
+ * It interacts with the database to retrieve the corresponding measurement data.
+ */
 public class Fragment2 extends Fragment {
 
     private TextView dateTextView;
@@ -32,6 +37,14 @@ public class Fragment2 extends Fragment {
     private RadioGroup radioGroup;
     private Button searchButton;
 
+    /**
+     * Initializes the layout and sets up event listeners for the buttons.
+     *
+     * @param inflater  The LayoutInflater used to inflate the fragment's view.
+     * @param container The ViewGroup that will contain the fragment's UI.
+     * @param savedInstanceState A Bundle containing the fragment's saved state (if any).
+     * @return The inflated view of the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -43,37 +56,35 @@ public class Fragment2 extends Fragment {
         radioGroup = view.findViewById(R.id.radioGroup);
         searchButton = view.findViewById(R.id.search_button);
 
-        pickDateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openStartDatePicker();
-            }
-        });
+        // Set up event listener for picking a date
+        pickDateButton.setOnClickListener(view1 -> openStartDatePicker());
 
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                displayResults();
-            }
-        });
+        // Set up event listener for searching and displaying results
+        searchButton.setOnClickListener(view12 -> displayResults());
 
         return view;
     }
 
-
+    /**
+     * Opens a DatePicker dialog for selecting a date.
+     * The selected date is displayed in the TextView.
+     */
     private void openStartDatePicker() {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                //Showing the picked value in the textView
-                month++;
-                String dateString = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day);
-                dateTextView.setText(dateString);
-            }
-        }, 2024, 10, 20);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(), R.style.DialogTheme,
+                (datePicker, year, month, day) -> {
+                    // Increment month since it's zero-based
+                    month++;
+                    // Format and display the selected date in the TextView
+                    String dateString = year + "-" + month + "-" + day;
+                    dateTextView.setText(dateString);
+                }, 2024, 10, 20);
         datePickerDialog.show();
     }
 
+    /**
+     * Retrieves the selected date and radio button option, queries the database for
+     * the corresponding measurements, and displays the results in a new activity.
+     */
     @SuppressLint("Range")
     private void displayResults() {
         String date = dateTextView.getText().toString();
@@ -85,21 +96,23 @@ public class Fragment2 extends Fragment {
         SoundDatabaseOperations dbOperations = new SoundDatabaseOperations(getContext());
         Cursor cursor = null;
 
-        if (selectedRadioButtonId == R.id.radio_button1) {
+        // Determine the selected radio button and retrieve data accordingly
+        if (selectedRadioButtonId == R.id.radio_button1) { // Year
             String year = date.split("-")[0];
             cursor = dbOperations.getMeasurementsForYear(db, year);
             selectedDate = year;
-        } else if (selectedRadioButtonId == R.id.radio_button2) {
+        } else if (selectedRadioButtonId == R.id.radio_button2) { // Month
             String[] dateParts = date.split("-");
             String year = dateParts[0];
             String month = String.format("%02d", Integer.parseInt(dateParts[1]));
             cursor = dbOperations.getMeasurementsForMonth(db, year, month);
             selectedDate = year + "-" + month;
-        } else if (selectedRadioButtonId == R.id.radio_button3) {
+        } else if (selectedRadioButtonId == R.id.radio_button3) { // Day
             cursor = dbOperations.getMeasurementsForDay(db, date);
             selectedDate = date;
         }
 
+        // Collect the retrieved measurements into a list
         List<String[]> measurements = new ArrayList<>();
         if (cursor != null && cursor.moveToFirst()) {
             do {
@@ -111,6 +124,7 @@ public class Fragment2 extends Fragment {
             cursor.close();
         }
 
+        // Show a message if no data is found, otherwise start a new activity to display the results
         if (measurements.isEmpty()) {
             Toast.makeText(getContext(), "No data found.", Toast.LENGTH_SHORT).show();
         } else {
@@ -119,8 +133,5 @@ public class Fragment2 extends Fragment {
             intent.putExtra("selected_date", selectedDate);
             startActivity(intent);
         }
-
     }
 }
-
-
